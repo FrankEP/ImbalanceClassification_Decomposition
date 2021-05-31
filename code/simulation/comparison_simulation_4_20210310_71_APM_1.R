@@ -1,0 +1,2002 @@
+
+# if (!requireNamespace("openxlsx", quietly = TRUE))
+#   install.packages("openxlsx", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("dplyr", quietly = TRUE))
+#   install.packages("dplyr", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("ggplot2", quietly = TRUE))
+#   install.packages("ggplot2", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("data.table", quietly = TRUE))
+#   install.packages("data.table", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("ranger", quietly = TRUE))
+#   install.packages("ranger", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("pROC", quietly = TRUE))
+#   install.packages("pROC", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("e1071", quietly = TRUE))
+#   install.packages("e1071", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("adabag", quietly = TRUE))
+#   install.packages("adabag", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("metaheuristicOpt", quietly = TRUE))
+#   install.packages("metaheuristicOpt", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("foreach", quietly = TRUE))
+#   install.packages("foreach", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("doParallel", quietly = TRUE))
+#   install.packages("doParallel", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("caret", quietly = TRUE))
+#   install.packages("caret", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("glmnet", quietly = TRUE))
+#   install.packages("glmnet", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("GA", quietly = TRUE))
+#   install.packages("GA", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("tictoc", quietly = TRUE))
+#   install.packages("tictoc", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("matlabr", quietly = TRUE))
+#   install.packages("matlabr", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# 
+# if (!requireNamespace("CVXR", quietly = TRUE))
+#   install.packages("CVXR", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+#
+# if (!requireNamespace("MBESS", quietly = TRUE))
+#   install.packages("MBESS", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+# if (!requireNamespace("mvtnorm", quietly = TRUE))
+#   install.packages("mvtnorm", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN")
+
+
+
+path <- "/home/jtw/biyelunwen"
+
+# path <- "F:/biyelunwen2"
+
+# path <- "D:/山大课题/毕业论文"
+
+setwd(path)
+
+# options(matlab.path='/usr/lib64/matlab2019b/bin/')
+
+library(CVXR)
+library(openxlsx)
+# library(dplyr)
+library(ggplot2)
+library(data.table)
+library(ranger)
+library(adabag)
+# library(kernlab)
+library(Matrix)
+library(openxlsx)
+
+# source(paste0(path,'/code/1_function_adaptive_threshold_moving_bootstrap??.R', echo=TRUE))
+# source(paste0(path,'/code/1_function_adaptive_threshold_moving_????_??ɸѡ??_???ι???.R', echo=TRUE))
+# source(paste0(path,'/code/1_function_adaptive_threshold_moving_????_??ɸѡ??_???ι滮_PSO.R', echo=TRUE))
+
+print("0")
+# source(paste0(path,'/code/test1.R'))
+print("1")
+source(paste0(path,'/code/1_function_metrics_unbalance_classification.R'))
+print("2")
+source(paste0(path,'/code/1_function_benchmarks(Multi-Imbalance_Matlab).R'))
+print("3")
+source(paste0(path,'/code/aaaa_GA_Rpackage_OptimalClassifiers_20201013_simplified_optimizeCombines_RFE_Pruning20210313_1.R'))
+# source(paste0(path,'/code/aaaa_GA_OVO.R'))
+# source(paste0(path,'/code/aaaa_GA_ECOC_dense_GA_optimalBase.R'))
+source(paste0(path,'/code/simulation/simulation_data_generator.R'))
+
+### ????data
+library(ranger)
+library(pROC)
+
+pathname <-  "simulation_4_20210313_72_APM_1"
+
+if(!dir.exists(paste0("data/", pathname))) dir.create(paste0("data/", pathname), recursive = TRUE)
+if(!dir.exists(paste0("code/", pathname))) dir.create(paste0("code/", pathname), recursive = TRUE)
+if(!dir.exists(paste0("code/QuadraticProgramming/", pathname))) dir.create(paste0("code/QuadraticProgramming/", pathname), recursive = TRUE)
+if(!dir.exists(paste0("results/", pathname))) dir.create(paste0("results/", pathname), recursive = TRUE)
+if(!dir.exists(paste0("results/", pathname, "/boxplot_prediction"))) dir.create(paste0("results/", pathname, "/boxplot_prediction"), recursive = TRUE)
+
+
+#########################################
+### statistical description
+#library(Publish)
+
+#(var_lx_mean <- paste0("CLASS~",paste0(names_x_data_train,collapse="+")))
+#mean_sd <- summary(univariateTable(as.formula(var_lx_mean), data=data_all, summary.format = "mean(x) ?? sd(x)", Q.format = "median(x) [range(x)]",digits = 5))
+
+#(var_lx_median <- paste0("CLASS~",paste0("Q(",names_x_data_train,")",collapse="+")))
+#median_range <- summary(univariateTable(as.formula(var_lx_median), data=data_all, summary.format = "mean(x) ?? sd(x)", Q.format = "median(x) [range(x)]",digits = 5))
+
+#(var_fl_count <- paste0("CLASS~",paste0(names_x_data_train,collapse="+")))
+#count_percent <- summary(univariateTable(as.formula(var_fl_count), data=data_all, freq.format = "count(x) (percent(x))", column.percent = TRUE, digits=2))
+
+
+
+
+
+#########################################
+
+num_rep <- 1   # ʵ???ظ?????
+num_Kfold <- 1  # K?۽?????֤?е?K
+
+# names_methods <- c("ATM", "DECOC", "DOVO", "AdaBoostM1", "SAMME", "AdaBoostNC", "AdaC2M1", "PIBoost",
+#                    "MCHDDT", "HDDTECOC", "HDDTOVA", "imECOCdense", "imECOCOVA", "imECOCsparse", "fuzzyImbECOC",
+#                    "MultiImAO", "MultiImOAHO", "MultiImOVA", "MultiImOVO")
+
+# names_methods <- c("ATM", "AdaBoostM1", "SAMME", "AdaBoostNC", "AdaC2M1", "PIBoost",
+#                    "MCHDDT", "HDDTECOC", "HDDTOVA", "imECOCdense", "imECOCOVA", "imECOCsparse", "fuzzyImbECOC",
+#                    "MultiImAO", "MultiImOAHO", "MultiImOVA", "MultiImOVO")
+
+# names_methods <- c("ATM", "original_RF", "original_SVM", "over_sampling_RF", "over_sampling_SVM", "down_sampling_RF", "down_sampling_SVM",
+#                    "SMOTE_RF", "SMOTE_SVM", "cost_sensitive_RF", "cost_sensitive_SVM", "AdaBoostM1", 
+#                    "original_RF_OVO", "original_SVM_OVO", "over_sampling_RF_OVO", "over_sampling_SVM_OVO", "down_sampling_RF_OVO", "down_sampling_SVM_OVO",
+#                    "SMOTE_RF_OVO", "SMOTE_SVM_OVO", "cost_sensitive_RF_OVO", "cost_sensitive_SVM_OVO", "threshold_moving_RF_OVO", "threshold_moving_SVM_OVO")
+
+names_methods <- c("ATM")
+# names_methods <- c("ATM", "AdaBoostM1", "SAMME")
+# names_methods <- c("ATM", "original_RF", "over_sampling_RF", "down_sampling_RF", "cost_sensitive_RF",
+#                                       "original_SVM", "over_sampling_SVM", "down_sampling_SVM", "cost_sensitive_SVM")
+select_backward_wilcoxon <- TRUE
+names_x_fixed = NULL
+subsets_backward <- c(60, 80, 120, 140, 160, 240, 360, 460)
+
+### simulation_4_20210313_72_APM
+N_matrix <- rbind(c(20, 40, 60, 20, 40, 60),
+                  c(20, 60, 100, 20, 60, 100),
+                  c(20, 100, 140, 20, 100, 140),
+                  c(20, 140, 220, 20, 140, 220),
+                  c(30, 60, 90, 30, 60, 90),
+                  c(30, 90, 150, 30, 90, 150),
+                  c(30, 150, 210, 30, 150, 210),
+                  c(30, 210, 330, 30, 210, 330),
+                  c(50, 100, 150, 50, 100, 150),
+                  c(50, 150, 250, 50, 150, 250),
+                  c(50, 250, 350, 50, 250, 350),
+                  c(50, 350, 550, 50, 350, 550),
+                  c(100, 200, 300, 100, 200, 300),
+                  c(100, 300, 500, 100, 300, 500),
+                  c(100, 500, 700, 100, 500, 700),
+                  c(100, 700, 1100, 100, 700, 1100))
+
+
+N_matrix_i <- 1
+
+for (N_matrix_i in 14:nrow(N_matrix)) {
+  
+  cat(N_matrix_i, "\n")
+  
+  rep_i <- 1
+  fold_i <- 1
+  prediction_performance <- c()
+  prediction_performance_average <- c()
+  for(rep_i in 1:num_rep){
+    
+    ###########  create simulated dataset
+    
+    #### data_train
+    N_classes_train <- N_matrix[N_matrix_i, 1:3]
+    N_classes_test <- N_matrix[N_matrix_i, 4:6]
+    N_var <- 5000
+    mean_classes <- rbind(c(0, 0, 1),
+                          c(1, 0, 2),
+                          c(0, 1, 3))
+    N_clusters <- c(200, 200, 200)
+    sigma_inner_clusters <- c(0.3, 0.3, 0.3)
+    sigma_between_clusters <- rbind(c(1, 2, 0.1),
+                                    c(1, 3, 0.1),
+                                    c(2, 3, 0.1))
+    sd_mean_noise <- 0
+    sd_var <- 1
+    addNoise_correlation <- FALSE
+    sd_noise_correlation <- 0
+    
+    ### train dataset
+    data_train_list <- simulation_data_generator(N_classes=N_classes_train, N_var=N_var, mean_classes=mean_classes, sd_mean_noise=sd_mean_noise, N_clusters=N_clusters, 
+                                                 sigma_inner_clusters=sigma_inner_clusters, sigma_between_clusters=sigma_between_clusters, 
+                                                 sd_var=sd_var, addNoise_correlation=TRUE, sd_noise_correlation=sd_noise_correlation, Seed=1)
+    data_train <- data_train_list$data_final
+    
+    
+    name_y_data_train <- "label"
+    names_x_data_train <- paste0("X", c(1:N_var))
+    
+    # library(Publish)
+    # var_lx_mean <- paste0("data_train_y~", paste0(names_x_data_train, collapse = "+"))
+    # mean_sd <- summary(univariateTable(as.formula(var_lx_mean), data = data_train, summary.format = "mean(x) ± sd(x)", digits = 3))
+    
+    
+    
+    # data_train[, names_x_data_train] <- scale(data_train[, names_x_data_train], scale = TRUE, center = FALSE)
+    
+    
+    ### test dataset
+    data_test_list <- simulation_data_generator(N_classes=N_classes_test, N_var=N_var, mean_classes=mean_classes, sd_mean_noise=sd_mean_noise, N_clusters=N_clusters, 
+                                                sigma_inner_clusters=sigma_inner_clusters, sigma_between_clusters=sigma_between_clusters, 
+                                                sd_var=sd_var, addNoise_correlation=TRUE, sd_noise_correlation=sd_noise_correlation, Seed=2)
+    data_test <- data_test_list$data_final
+    
+    
+    name_y_data_test <- "label"
+    names_x_data_test <- paste0("X", c(1:N_var))
+    
+    # data_test[, names_x_data_test] <- scale(data_test[, names_x_data_test], scale = TRUE, center = FALSE)
+    
+    
+    set.seed(rep_i)
+    class_prediction_test_AllMethods <- c()
+    
+    for(fold_i in 1:num_Kfold){
+      # class_prediction_temp <- c()
+      cat("-----------------------------------------", rep_i, fold_i, "----------------------------------", "\n")
+      
+      data_train_x <- data_train[, names_x_data_train]
+      data_train_y <- data_train[, name_y_data_train]
+      data_train_y_numerical <- as.numeric(as.character(data_train_y))
+      
+      data_test_x <- data_test[, names_x_data_train]
+      data_test_y <- data_test[, name_y_data_train]
+      data_test_y_numerical <- as.numeric(as.character(data_test_y))
+      
+      data_train <- cbind(data_train_y, data_train_x)
+      data_train$data_train_y <- factor(data_train$data_train_y)
+      if(any(!is.element(names_methods, "ATM"))){
+        # results_Wilcoxon <- c()
+        print("wilcoxon multiclasses start")
+        library(foreach)
+        library(doParallel)
+        cores <- detectCores()
+        num_cores = floor(0.8*cores)
+        cl <- makeCluster(num_cores)
+        registerDoParallel(cl)
+        results_Wilcoxon <- foreach (var_i = names_x_data_train, .combine = "rbind") %dopar% {
+          cat(var_i, "\n")
+          # x_wilcoxon <- data_train_y_x_inbag_binary[]
+          Wilcoxon_model <- kruskal.test(as.formula(paste(var_i, "~", "data_train_y")), data = data_train)
+          aa <- c(Wilcoxon_model$statistic, Wilcoxon_model$p.value)
+          aa
+          # results_Wilcoxon <- rbind(results_Wilcoxon, aa)
+        }
+        stopCluster(cl)
+        colnames(results_Wilcoxon) <- c("statistics", "p")
+        results_Wilcoxon <- cbind(names_x_data_train, results_Wilcoxon)
+        results_Wilcoxon <- as.data.frame(results_Wilcoxon)
+        results_Wilcoxon <- results_Wilcoxon[order(as.numeric(as.character(results_Wilcoxon$statistics)), decreasing = TRUE), ]
+        colnames(results_Wilcoxon)[1] <- "names_x"
+        # fdr_results <- fdrtool::fdrtool(as.numeric(as.character(results_Wilcoxon$p)), statistic = "pvalue", plot=F)
+        # results_Wilcoxon$qval <- fdr_results$qval
+        # results_Wilcoxon$lfdr <- fdr_results$lfdr
+        print("wilcoxon multiclasses end")
+      }
+      
+      if(!dir.exists(paste0("data/", pathname))) dir.create(paste0("data/", pathname), recursive = TRUE)
+      # write.xlsx(data_train_x, file = paste0("data/", pathname, "/data_train_x.xlsx"), row.names=FALSE, col.names=FALSE)
+      # write.xlsx(data_train_y_numerical, file = paste0("data/", pathname, "/data_train_y.xlsx"), row.names=FALSE, col.names=FALSE)
+      # write.xlsx(data_test_x, file = paste0("data/", pathname, "/data_test_x.xlsx"), row.names=FALSE, col.names=FALSE)
+      # write.xlsx(data_test_y_numerical, file = paste0("data/", pathname, "/data_test_y.xlsx"), row.names=FALSE, col.names=FALSE)
+      
+      
+      class_prediction_test_AllMethods_fold_i <- c()
+      
+      ### method 0: Adaptivie Threshold Moving (ATM)
+      if(is.element("ATM", names_methods)){
+        results_ATM <- Adaptive_threshold_moving(X=data_train_x, Y=data_train_y, NEW_X=data_test_x, num_bootstrap=9, pathname = pathname, fold_i=fold_i, rep_i=rep_i, 
+                                                 rfe_select=FALSE, select_backward = FALSE, select_backward_wilcoxon = TRUE, names_x_fixed = NULL,
+                                                 subsets_rfe = subsets_backward, parallel_combinations=TRUE, parallel_AdaBoost=FALSE, sub_features=TRUE, ratio_sub_features=0.8, fit_model_binary=T, fit_model_OVA=F,
+                                                 plot_scatter=FALSE, plot_boxplot_prediction_InbagAndOutbag=TRUE, plot_boxplot_prediction_TrainAndTest=TRUE)
+        # results_ATM <- Adaptive_threshold_moving_NoOptimization(X=data_train_x, Y=data_train_y, NEW_X=data_test_x, num_bootstrap=1, pathname = pathname, fold_i=fold_i, rep_i=rep_i)
+        
+        # X=data_train_x
+        # Y=data_train_y
+        # NEW_X=data_test_x
+        # num_bootstrap=3
+        # pathname = pathname
+        # fold_i=fold_i
+        # rep_i=rep_i
+        # rfe_select=FALSE
+        # select_backward = FALSE
+        # select_backward_wilcoxon = TRUE
+        # names_x_fixed = NULL
+        # subsets_rfe = subsets_backward
+        # parallel_combinations=TRUE
+        # parallel_AdaBoost=FALSE
+        # sub_features=TRUE
+        # ratio_sub_features=0.8
+        # fit_model_binary=T
+        # fit_model_OVA=F
+        # rescale_prediction=T
+        # plot_scatter=FALSE
+        # plot_boxplot_prediction_InbagAndOutbag=TRUE
+        # plot_boxplot_prediction_TrainAndTest=TRUE
+        
+        
+        
+        
+        class_prediction_test <- results_ATM$class_prediction_test
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+        
+        plot_scatter <- FALSE
+        if(plot_scatter){
+          print("3d scatter plot trainset")
+          library(plotly)
+          
+          source(paste0(path, '/code/1_function_OVO_code_matrix_generator.R'))
+          M <- OVO_matrix(K=length(unique(data_train_y)))
+          prediction_plot_trainset <- results_ATM$prediction_trainset_AllBinaryClassifiers
+          prediction_plot_trainset <- as.data.frame(prediction_plot_trainset)
+          colnames(prediction_plot_trainset) <- c("c1", "c2", "c3")
+          prediction_plot_trainset$label <- data_train_y
+          prediction_plot_trainset$class <- 1
+          aaa <- cbind(M, c(1, 2, 3), c(2, 2, 2))
+          colnames(aaa) <- colnames(prediction_plot_trainset)
+          prediction_plot_trainset <- rbind(aaa, prediction_plot_trainset)
+          
+          prediction_plot_trainset$label <- factor(prediction_plot_trainset$label)
+          prediction_plot_trainset$class <- factor(prediction_plot_trainset$class)
+          
+          fig <- plot_ly(prediction_plot_trainset, x=~c1, y=~c2, z=~c3, color = ~label, symbol = ~class, symbols = c('circle', 'x'))
+          fig <- fig %>% add_markers()
+          fig <- fig %>% layout(scene = list(xaxis = list(title = 'classifier_1'),
+                                             yaxis = list(title = 'classifier_2'),
+                                             zaxis = list(title = 'classifier_3')))
+          # fig
+          
+          htmlwidgets::saveWidget(as_widget(fig), file=paste0(path, "/results/", pathname, "/3D_ScatterPlot_trainset_rep_i_", rep_i, "_fold_i_", fold_i, "_.html"))
+          
+          
+          print("3d scatter plot testset")
+          prediction_plot_testset <- results_ATM$prediction_testset_AllBinaryClassifiers
+          prediction_plot_testset <- as.data.frame(prediction_plot_testset)
+          colnames(prediction_plot_testset) <- c("c1", "c2", "c3")
+          prediction_plot_testset$label <- data_test_y
+          prediction_plot_testset$class <- 1
+          aaa <- cbind(M, c(1, 2, 3), c(2, 2, 2))
+          colnames(aaa) <- colnames(prediction_plot_testset)
+          prediction_plot_testset <- rbind(aaa, prediction_plot_testset)
+          
+          prediction_plot_testset$label <- factor(prediction_plot_testset$label)
+          prediction_plot_testset$class <- factor(prediction_plot_testset$class)
+          
+          fig <- plot_ly(prediction_plot_testset, x=~c1, y=~c2, z=~c3, color = ~label, symbol = ~class, symbols = c('circle', 'x'))
+          fig <- fig %>% add_markers()
+          fig <- fig %>% layout(scene = list(xaxis = list(title = 'classifier_1'),
+                                             yaxis = list(title = 'classifier_2'),
+                                             zaxis = list(title = 'classifier_3')))
+          # fig
+          
+          htmlwidgets::saveWidget(as_widget(fig), file=paste0(path, "/results/", pathname, "/3D_ScatterPlot_testset_rep_i_", rep_i, "_fold_i_", fold_i, "_.html"))
+        }
+        
+      }
+      
+      if(any(!is.element(names_methods, "ATM"))){
+      
+      ### method 1: DECOC
+      if(is.element("DECOC", names_methods)){
+        DECOC(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE),
+              train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE),
+              test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE),
+              test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE),
+              output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_DECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+              output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_DECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+              matlab_code_file_directory=paste0(path, "/code/", pathname))
+        
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_DECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_DECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 2: DOVO
+      if(is.element("DOVO", names_methods)){
+        DOVO(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE),
+             train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE),
+             test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE),
+             test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE),
+             output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_DOVO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+             output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_DOVO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+             matlab_code_file_directory=paste0(path, "/code/", pathname))
+        
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_DOVO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_DOVO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 3: AdaBoostM1
+      matlab_code_file_directory=paste0(path, "/code/", pathname)
+      if(!dir.exists(matlab_code_file_directory)) dir.create(matlab_code_file_directory, recursive = TRUE)
+      
+      
+      # rmat_to_matlab_mat(data_train_x, matname = "trainData", transpose = FALSE)
+      # rvec_to_matlab(data_train_y, matname = "trainLabel")
+      # rmat_to_matlab_mat(data_test_x, matname = "testData", transpose = FALSE)
+      # rvec_to_matlab(data_test_y, matname = "testLabel")
+      
+      # tictoc::tic()
+      # output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_AdaBoostM1", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE)
+      # output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_AdaBoostM1", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE)
+      # 
+      # code <- c("clear",
+      #           paste0("cd '", path, "/code/", pathname, "'"),
+      #           "javaaddpath('weka.jar')",
+      #           "p = genpath(pwd)",
+      #           "addpath(p, '-begin')",
+      #           rmat_to_matlab_mat(data_train_x, matname = "trainData", transpose = FALSE),
+      #           rvec_to_matlab(data_train_y, matname = "trainLabel"),
+      #           rmat_to_matlab_mat(data_test_x, matname = "testData", transpose = FALSE),
+      #           rvec_to_matlab(data_test_y, matname = "testLabel"),
+      #           "[trainTime,testTime,predictedResults_train] = adaBoostCartM1(trainData, trainLabel, trainData, 20)",
+      #           "[trainTime,testTime,predictedResults_test] = adaBoostCartM1(trainData, trainLabel, testData, 20)",
+      #           paste0("xlswrite('", output_train_file, "', predictedResults_train)"),
+      #           paste0("xlswrite('", output_test_file, "', predictedResults_test)")
+      #           )
+      # run_matlab_code(code = code)
+      # tictoc::toc()
+      
+      
+      if(is.element("AdaBoostM1", names_methods)){
+        
+        ## matlab code
+        # tictoc::tic()
+        # AdaBoostM1(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+        #            train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+        #            test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+        #            test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+        #            output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_AdaBoostM1", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+        #            output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_AdaBoostM1", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+        #            matlab_code_file_directory=paste0(path, "/code/", pathname))
+        # tictoc::toc()
+        # 
+        # class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_AdaBoostM1", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        # class_prediction_train <- class_prediction_train$X1
+        # 
+        # class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_AdaBoostM1", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        # class_prediction_test <- class_prediction_test$X1
+        
+        ## R code
+        tictoc::tic()
+        data_train <- cbind(data_train_y, data_train_x)
+        data_train$data_train_y <- factor(data_train$data_train_y)
+        modelformula <- as.formula(paste("data_train_y", "~", paste(colnames(data_train_x), collapse = "+")))
+        model_fit <-  adabag::boosting(modelformula, data = data_train,
+                                       coeflearn = "Breiman"    ### different coeflean correspond to different kind of adaboost. see details in help document.
+        )
+        
+        class_prediction_train <- predict(model_fit, newdata=data_train_x)$class
+        class_prediction_test <- predict(model_fit, newdata=data_test_x)$class
+        tictoc::toc()
+        
+        
+        # tictoc::tic()
+        # 
+        # library(foreach)
+        # library(doParallel)
+        # cores <- detectCores()
+        # num_cores = floor(0.7*cores)
+        # 
+        # cl <- makeCluster(num_cores)
+        # registerDoParallel(cl)
+        # 
+        # data_train <- cbind(data_train_y, data_train_x)
+        # data_train$data_train_y <- factor(data_train$data_train_y)
+        # modelformula <- as.formula(paste("data_train_y", "~", paste(colnames(data_train_x), collapse = "+")))
+        # model_fit <-  caret::train(modelformula, data = data_train, 
+        #                                method = "AdaBoost.M1"    ### different coeflean correspond to different kind of adaboost. see details in help document.
+        #                                )
+        # 
+        # class_prediction_train <- predict(model_fit, newdata=data_train_x)
+        # class_prediction_test <- predict(model_fit, newdata=data_test_x)
+        # 
+        # stopCluster(cl)
+        # 
+        # save.image(file=paste0("code/", pathname, "/AdaBoost.M1_", rep_i, "_fold_i_", fold_i, "_.RData"))
+        # tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 4: SAMME
+      if(is.element("SAMME", names_methods)){
+        # SAMME(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+        #       train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+        #       test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+        #       test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+        #       output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_SAMME", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+        #       output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_SAMME", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+        #       matlab_code_file_directory=paste0(path, "/code/", pathname))
+        # class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_SAMME", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        # class_prediction_train <- class_prediction_train$X1
+        # 
+        # class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_SAMME", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        # class_prediction_test <- class_prediction_test$X1
+        
+        ## R code
+        tictoc::tic()
+        data_train <- cbind(data_train_y, data_train_x)
+        data_train$data_train_y <- factor(data_train$data_train_y)
+        modelformula <- as.formula(paste("data_train_y", "~", paste(colnames(data_train_x), collapse = "+")))
+        model_fit <-  adabag::boosting(modelformula, data = data_train, 
+                                       coeflearn = "Zhu"    ### different coeflean correspond to different kind of adaboost. see details in help document.
+        )
+        
+        class_prediction_train <- predict(model_fit, newdata=data_train_x)$class
+        class_prediction_test <- predict(model_fit, newdata=data_test_x)$class
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 19_1: original (RF)
+      if(is.element("original_RF", names_methods)){
+        
+        ## R code
+        tictoc::tic()
+        # data_train <- cbind(data_train_y, data_train_x)
+        # data_train$data_train_y <- as.factor(data_train$data_train_y)
+        
+        if(select_backward_wilcoxon) {
+          auc_backward <- c()
+          for (subset_i in seq_len(length(subsets_backward))) {
+            cat(subset_i, "\n")
+            names_x_select_temp <- as.character(results_Wilcoxon$names_x[1:subsets_backward[subset_i]])
+            names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+            modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select_temp, collapse = "+")))
+            model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train)
+            
+            prediction_temp_temp <- predict(model_fit_temp, data = data_train)$predictions
+            auc_backward[subset_i] <- pROC::multiclass.roc(data_train$data_train_y, as.numeric(as.character(prediction_temp_temp)))$auc
+          }
+          names_x_select <- as.character(results_Wilcoxon$names_x[1:subsets_backward[which.max(auc_backward)]])
+          names_x_select <- c(names_x_fixed, names_x_select)
+          
+        } else {
+          names_x_select <- names_x
+        }
+        
+        
+        modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select, collapse = "+")))
+        model_fit <- ranger::ranger(formula = modelformula, data = data_train)
+        
+        class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+        class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 19_2: original (SVM)
+      if(is.element("original_SVM", names_methods)){
+        
+        ## R code
+        tictoc::tic()
+        
+        if(select_backward_wilcoxon) {
+          auc_backward <- c()
+          for (subset_i in seq_len(length(subsets_backward))) {
+            cat(subset_i, "\n")
+            names_x_select_temp <- as.character(results_Wilcoxon$names_x[1:subsets_backward[subset_i]])
+            names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+            modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select_temp, collapse = "+")))
+            model_fit_temp <-  e1071::svm(modelformula, data = data_train)
+            
+            prediction_temp_temp <- predict(model_fit_temp, newdata = data_train)
+            auc_backward[subset_i] <- pROC::multiclass.roc(data_train$data_train_y, as.numeric(as.character(prediction_temp_temp)))$auc
+          }
+          names_x_select <- as.character(results_Wilcoxon$names_x[1:subsets_backward[which.max(auc_backward)]])
+          names_x_select <- c(names_x_fixed, names_x_select)
+          
+        } else {
+          names_x_select <- names_x
+        }
+        
+        modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select, collapse = "+")))
+        model_fit <-  e1071::svm(modelformula, data = data_train)
+        
+        class_prediction_train <- predict(model_fit, newdata=data_train_x)
+        class_prediction_test <- predict(model_fit, newdata=data_test_x)
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 20_1: over sampling (RF)
+      if(is.element("over_sampling_RF", names_methods)){
+        
+        ## R code
+        tictoc::tic()
+        # data_train <- cbind(data_train_y, data_train_x)
+        data_train_upSampling <- caret::upSample(x = data_train_x,
+                                                 y = as.factor(data_train_y))
+        colnames(data_train_upSampling) <- c(colnames(data_train_x), "data_train_y")
+        
+        if(select_backward_wilcoxon) {
+          auc_backward <- c()
+          for (subset_i in seq_len(length(subsets_backward))) {
+            cat(subset_i, "\n")
+            names_x_select_temp <- as.character(results_Wilcoxon$names_x[1:subsets_backward[subset_i]])
+            names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+            modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select_temp, collapse = "+")))
+            model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train_upSampling)
+            
+            prediction_temp_temp <- predict(model_fit_temp, data = data_train)$predictions
+            auc_backward[subset_i] <- pROC::multiclass.roc(data_train$data_train_y, as.numeric(as.character(prediction_temp_temp)))$auc
+          }
+          names_x_select <- as.character(results_Wilcoxon$names_x[1:subsets_backward[which.max(auc_backward)]])
+          names_x_select <- c(names_x_fixed, names_x_select)
+          
+        } else {
+          names_x_select <- names_x
+        }
+        
+        modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select, collapse = "+")))
+        model_fit <- ranger::ranger(formula = modelformula, data = data_train_upSampling)
+        
+        class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+        class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      ### method 20_2: over sampling (SVM)
+      if(is.element("over_sampling_SVM", names_methods)){
+        
+        ## R code
+        tictoc::tic()
+        
+        data_train_upSampling <- caret::upSample(x = data_train_x,
+                                                 y = as.factor(data_train_y))
+        colnames(data_train_upSampling) <- c(colnames(data_train_x), "data_train_y")
+        
+        if(select_backward_wilcoxon) {
+          auc_backward <- c()
+          for (subset_i in seq_len(length(subsets_backward))) {
+            cat(subset_i, "\n")
+            names_x_select_temp <- as.character(results_Wilcoxon$names_x[1:subsets_backward[subset_i]])
+            names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+            modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select_temp, collapse = "+")))
+            model_fit_temp <-  e1071::svm(modelformula, data = data_train_upSampling)
+            
+            prediction_temp_temp <- predict(model_fit_temp, newdata = data_train)
+            auc_backward[subset_i] <- pROC::multiclass.roc(data_train$data_train_y, as.numeric(as.character(prediction_temp_temp)))$auc
+          }
+          names_x_select <- as.character(results_Wilcoxon$names_x[1:subsets_backward[which.max(auc_backward)]])
+          names_x_select <- c(names_x_fixed, names_x_select)
+          
+        } else {
+          names_x_select <- names_x
+        }
+        
+        modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select, collapse = "+")))
+        model_fit <-  e1071::svm(modelformula, data = data_train_upSampling)
+        
+        class_prediction_train <- predict(model_fit, newdata=data_train_x)
+        class_prediction_test <- predict(model_fit, newdata=data_test_x)
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 21_1: under sampling (RF)
+      if(is.element("down_sampling_RF", names_methods)){
+        
+        ## R code
+        tictoc::tic()
+        # data_train <- cbind(data_train_y, data_train_x)
+        data_train_downSampling <- caret::downSample(x = data_train_x,
+                                                     y = as.factor(data_train_y))
+        colnames(data_train_downSampling) <- c(colnames(data_train_x), "data_train_y")
+        
+        if(select_backward_wilcoxon) {
+          auc_backward <- c()
+          for (subset_i in seq_len(length(subsets_backward))) {
+            cat(subset_i, "\n")
+            names_x_select_temp <- as.character(results_Wilcoxon$names_x[1:subsets_backward[subset_i]])
+            names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+            modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select_temp, collapse = "+")))
+            model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train_downSampling)
+            
+            prediction_temp_temp <- predict(model_fit_temp, data = data_train)$predictions
+            auc_backward[subset_i] <- pROC::multiclass.roc(data_train$data_train_y, as.numeric(as.character(prediction_temp_temp)))$auc
+          }
+          names_x_select <- as.character(results_Wilcoxon$names_x[1:subsets_backward[which.max(auc_backward)]])
+          names_x_select <- c(names_x_fixed, names_x_select)
+          
+        } else {
+          names_x_select <- names_x
+        }
+        
+        modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select, collapse = "+")))
+        model_fit <- ranger::ranger(formula = modelformula, data = data_train_downSampling)
+        
+        class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+        class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 21_2: under sampling (SVM)
+      if(is.element("down_sampling_SVM", names_methods)){
+        
+        ## R code
+        tictoc::tic()
+        
+        data_train_downSampling <- caret::downSample(x = data_train_x,
+                                                     y = as.factor(data_train_y))
+        colnames(data_train_downSampling) <- c(colnames(data_train_x), "data_train_y")
+        
+        if(select_backward_wilcoxon) {
+          auc_backward <- c()
+          for (subset_i in seq_len(length(subsets_backward))) {
+            cat(subset_i, "\n")
+            names_x_select_temp <- as.character(results_Wilcoxon$names_x[1:subsets_backward[subset_i]])
+            names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+            modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select_temp, collapse = "+")))
+            model_fit_temp <-  e1071::svm(modelformula, data = data_train_downSampling)
+            
+            prediction_temp_temp <- predict(model_fit_temp, newdata = data_train)
+            auc_backward[subset_i] <- pROC::multiclass.roc(data_train$data_train_y, as.numeric(as.character(prediction_temp_temp)))$auc
+          }
+          names_x_select <- as.character(results_Wilcoxon$names_x[1:subsets_backward[which.max(auc_backward)]])
+          names_x_select <- c(names_x_fixed, names_x_select)
+          
+        } else {
+          names_x_select <- names_x
+        }
+        
+        modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select, collapse = "+")))
+        model_fit <-  e1071::svm(modelformula, data = data_train_downSampling)
+        
+        class_prediction_train <- predict(model_fit, newdata=data_train_x)
+        class_prediction_test <- predict(model_fit, newdata=data_test_x)
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      # library(UBL)
+      
+      ### method 22_1: SMOTE (RF)
+      if(is.element("SMOTE_RF", names_methods)){
+        
+        ## R code
+        tictoc::tic()
+        # data_train <- cbind(data_train_y, data_train_x)
+        data_train_y_x_temp <- cbind(data_train_y, data_train_x)
+        data_train_y_x_temp$data_train_y <- factor(data_train_y_x_temp$data_train_y)
+        data_train_SMOTE <- UBL::SmoteClassif(data_train_y~., data_train_y_x_temp, C.perc = "balance")
+        colnames(data_train_SMOTE) <- c("data_train_y", colnames(data_train_x))
+        
+        if(select_backward_wilcoxon) {
+          auc_backward <- c()
+          for (subset_i in seq_len(length(subsets_backward))) {
+            cat(subset_i, "\n")
+            names_x_select_temp <- as.character(results_Wilcoxon$names_x[1:subsets_backward[subset_i]])
+            names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+            modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select_temp, collapse = "+")))
+            model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train_SMOTE)
+            
+            prediction_temp_temp <- predict(model_fit_temp, data = data_train)$predictions
+            auc_backward[subset_i] <- pROC::multiclass.roc(data_train$data_train_y, as.numeric(as.character(prediction_temp_temp)))$auc
+          }
+          names_x_select <- as.character(results_Wilcoxon$names_x[1:subsets_backward[which.max(auc_backward)]])
+          names_x_select <- c(names_x_fixed, names_x_select)
+          
+        } else {
+          names_x_select <- names_x
+        }
+        
+        modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select, collapse = "+")))
+        model_fit <- ranger::ranger(formula = modelformula, data = data_train_SMOTE)
+        
+        class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+        class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 22_2: SMOTE (SVM)
+      if(is.element("SMOTE_SVM", names_methods)){
+        
+        ## R code
+        tictoc::tic()
+        
+        data_train_y_x_temp <- cbind(data_train_y, data_train_x)
+        data_train_y_x_temp$data_train_y <- factor(data_train_y_x_temp$data_train_y)
+        data_train_SMOTE <- UBL::SmoteClassif(data_train_y~., data_train_y_x_temp, C.perc = "balance")
+        colnames(data_train_SMOTE) <- c("data_train_y", colnames(data_train_x))
+        
+        if(select_backward_wilcoxon) {
+          auc_backward <- c()
+          for (subset_i in seq_len(length(subsets_backward))) {
+            cat(subset_i, "\n")
+            names_x_select_temp <- as.character(results_Wilcoxon$names_x[1:subsets_backward[subset_i]])
+            names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+            modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select_temp, collapse = "+")))
+            model_fit_temp <-  e1071::svm(modelformula, data = data_train_SMOTE)
+            
+            prediction_temp_temp <- predict(model_fit_temp, newdata = data_train)
+            auc_backward[subset_i] <- pROC::multiclass.roc(data_train$data_train_y, as.numeric(as.character(prediction_temp_temp)))$auc
+          }
+          names_x_select <- as.character(results_Wilcoxon$names_x[1:subsets_backward[which.max(auc_backward)]])
+          names_x_select <- c(names_x_fixed, names_x_select)
+          
+        } else {
+          names_x_select <- names_x
+        }
+        
+        modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select, collapse = "+")))
+        model_fit <-  e1071::svm(modelformula, data = data_train_SMOTE)
+        
+        class_prediction_train <- predict(model_fit, newdata=data_train_x)
+        class_prediction_test <- predict(model_fit, newdata=data_test_x)
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 23_1: cost sensitive (RF)
+      if(is.element("cost_sensitive_RF", names_methods)){
+        
+        ## R code
+        tictoc::tic()
+        # data_train <- cbind(data_train_y, data_train_x)
+        
+        if(select_backward_wilcoxon) {
+          auc_backward <- c()
+          for (subset_i in seq_len(length(subsets_backward))) {
+            cat(subset_i, "\n")
+            names_x_select_temp <- as.character(results_Wilcoxon$names_x[1:subsets_backward[subset_i]])
+            names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+            modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select_temp, collapse = "+")))
+            model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train, class.weights = 1/(table(data_train_y)/length(data_train_y)))
+            
+            prediction_temp_temp <- predict(model_fit_temp, data = data_train)$predictions
+            auc_backward[subset_i] <- pROC::multiclass.roc(data_train$data_train_y, as.numeric(as.character(prediction_temp_temp)))$auc
+          }
+          names_x_select <- as.character(results_Wilcoxon$names_x[1:subsets_backward[which.max(auc_backward)]])
+          names_x_select <- c(names_x_fixed, names_x_select)
+          
+        } else {
+          names_x_select <- names_x
+        }
+        
+        modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select, collapse = "+")))
+        model_fit <- ranger::ranger(formula = modelformula, data = data_train, class.weights = 1/(table(data_train_y)/length(data_train_y)))
+        
+        class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+        class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      ### method 23_2: cost sensitive (SVM)
+      if(is.element("cost_sensitive_SVM", names_methods)){
+        
+        ## R code
+        tictoc::tic()
+        
+        if(select_backward_wilcoxon) {
+          auc_backward <- c()
+          for (subset_i in seq_len(length(subsets_backward))) {
+            cat(subset_i, "\n")
+            names_x_select_temp <- as.character(results_Wilcoxon$names_x[1:subsets_backward[subset_i]])
+            names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+            modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select_temp, collapse = "+")))
+            model_fit_temp <-  caret::train(modelformula, data = data_train, method = "svmRadialWeights", Cost=1/(table(data_train_y)/length(data_train_y)), weight=1/(table(data_train_y)/length(data_train_y)), 
+                                            trControl = trainControl(method = "none", verboseIter  = FALSE, allowParallel = FALSE))
+            
+            prediction_temp_temp <- predict(model_fit_temp, newdata = data_train)
+            auc_backward[subset_i] <- pROC::multiclass.roc(data_train$data_train_y, as.numeric(as.character(prediction_temp_temp)))$auc
+          }
+          names_x_select <- as.character(results_Wilcoxon$names_x[1:subsets_backward[which.max(auc_backward)]])
+          names_x_select <- c(names_x_fixed, names_x_select)
+          
+        } else {
+          names_x_select <- names_x
+        }
+        
+        modelformula <- as.formula(paste("data_train_y", "~", paste(names_x_select, collapse = "+")))
+        model_fit <-  caret::train(modelformula, data = data_train, method = "svmRadialWeights", Cost=1/(table(data_train_y)/length(data_train_y)), weight=1/(table(data_train_y)/length(data_train_y)), 
+                                   trControl = trainControl(method = "none", verboseIter  = FALSE, allowParallel = FALSE))
+        
+        class_prediction_train <- predict(model_fit, newdata=data_train_x)
+        class_prediction_test <- predict(model_fit, newdata=data_test_x)
+        tictoc::toc()
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ############## OVO ##############
+      
+      # source(paste0(path, '/code/1_function_OVO_code_matrix_generator.R'))
+      # M <- OVO_matrix(K=K)
+      
+      K <- length(unique(data_train_y))
+      
+      class_combinations <- combn(c(1:K), 2)
+      
+      data_train_y_x_temp <- cbind(data_train_y, data_train_x)
+      data_train_y_x_temp$data_train_y <- factor(data_train_y_x_temp$data_train_y)
+      
+      class_prediction_train_OVO_list <- vector("list", length = length(grep("OVO", names_methods)))
+      class_prediction_test_OVO_list <- vector("list", length = length(grep("OVO", names_methods)))
+      
+      for(combination_i in c(1:ncol(class_combinations))) {
+        ## extract binary dataset
+        class_1 <- class_combinations[1, combination_i]
+        class_2 <- class_combinations[2, combination_i]
+        
+        # class_others <- unique(data_train_y_x_temp$Y)[!is.element(unique(data_train_y_x_temp$Y), c(class_1, class_2))]
+        # class_others <- sort(as.numeric(as.character(class_others)))
+        
+        ###### inbag
+        ### binary
+        data_train_y_x_temp_class1 <- data_train_y_x_temp[data_train_y_x_temp$data_train_y==class_1, ]
+        data_train_y_x_temp_class2 <- data_train_y_x_temp[data_train_y_x_temp$data_train_y==class_2, ]
+        
+        data_train_y_x_temp_binary <- rbind(data_train_y_x_temp_class1, data_train_y_x_temp_class2)
+        data_train_y_x_temp_binary$Y_binary_numerical <- ifelse(data_train_y_x_temp_binary$data_train_y==class_1, 1, -1)
+        data_train_y_x_temp_binary$Y_binary_factor <- as.factor(data_train_y_x_temp_binary$Y_binary_numerical)
+        
+        
+        print("wilcoxon binary start")
+        library(foreach)
+        library(doParallel)
+        cores <- detectCores()
+        num_cores = floor(0.8*cores)
+        cl <- makeCluster(num_cores)
+        registerDoParallel(cl)
+        results_Wilcoxon_OVO <- foreach (var_i = names_x_data_train, .combine = "rbind") %dopar% {
+          cat(var_i, "\n")
+          # x_wilcoxon <- data_train_y_x_inbag_binary[]
+          Wilcoxon_model <- wilcox.test(as.formula(paste(var_i, "~", "Y_binary_factor")), data = data_train_y_x_temp_binary,
+                                        alternative = c("two.sided"),
+                                        mu = 0, paired = FALSE, exact = NULL, correct = TRUE,
+                                        conf.int = FALSE, conf.level = 0.95)
+          aa <- c(Wilcoxon_model$statistic, Wilcoxon_model$p.value)
+          aa
+          # results_Wilcoxon <- rbind(results_Wilcoxon, aa)
+        }
+        stopCluster(cl)
+        colnames(results_Wilcoxon_OVO) <- c("statistics", "p")
+        results_Wilcoxon_OVO <- cbind(names_x_data_train, results_Wilcoxon_OVO)
+        results_Wilcoxon_OVO <- as.data.frame(results_Wilcoxon_OVO)
+        results_Wilcoxon_OVO <- results_Wilcoxon_OVO[order(as.numeric(as.character(results_Wilcoxon_OVO$p)), decreasing = FALSE), ]
+        print("wilcoxon binary end")
+        
+        
+        ### method 19_1_OVO: original (RF) + OVO
+        if(is.element("original_RF_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train_y_x_temp_binary)
+              
+              prediction_temp_temp <- predict(model_fit_temp, data = data_train_y_x_temp_binary)$predictions
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <- ranger::ranger(formula = modelformula, data = data_train_y_x_temp_binary)
+          
+          class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+          class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["original_RF_OVO"]] <- cbind(class_prediction_train_OVO_list[["original_RF_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["original_RF_OVO"]] <- cbind(class_prediction_test_OVO_list[["original_RF_OVO"]], class_prediction_test)
+        }
+        
+        
+        ### method 19_2: original (SVM)
+        if(is.element("original_SVM_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <-  e1071::svm(modelformula, data = data_train_y_x_temp_binary)
+              
+              prediction_temp_temp <- predict(model_fit_temp, newdata = data_train_y_x_temp_binary)
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <-  e1071::svm(modelformula, data = data_train_y_x_temp_binary)
+          
+          class_prediction_train <- predict(model_fit, newdata=data_train_x)
+          class_prediction_test <- predict(model_fit, newdata=data_test_x)
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["original_SVM_OVO"]] <- cbind(class_prediction_train_OVO_list[["original_SVM_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["original_SVM_OVO"]] <- cbind(class_prediction_test_OVO_list[["original_SVM_OVO"]], class_prediction_test)
+        }
+        
+        
+        ### method 20_1: over sampling (RF)
+        if(is.element("over_sampling_RF_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          data_train_upSampling <- caret::upSample(x = data_train_y_x_temp_binary[, names_x_data_train],
+                                                   y = data_train_y_x_temp_binary$Y_binary_factor)
+          colnames(data_train_upSampling) <- c(names_x_data_train, "Y_binary_factor")
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train_upSampling)
+              
+              prediction_temp_temp <- predict(model_fit_temp, data = data_train_y_x_temp_binary)$predictions
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <- ranger::ranger(formula = modelformula, data = data_train_upSampling)
+          
+          class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+          class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["over_sampling_RF_OVO"]] <- cbind(class_prediction_train_OVO_list[["over_sampling_RF_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["over_sampling_RF_OVO"]] <- cbind(class_prediction_test_OVO_list[["over_sampling_RF_OVO"]], class_prediction_test)
+        }
+        
+        
+        ### method 20_2: over sampling (SVM)
+        if(is.element("over_sampling_SVM_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          
+          data_train_upSampling <- caret::upSample(x = data_train_y_x_temp_binary[, names_x_data_train],
+                                                   y = data_train_y_x_temp_binary$Y_binary_factor)
+          colnames(data_train_upSampling) <- c(names_x_data_train, "Y_binary_factor")
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <-  e1071::svm(modelformula, data = data_train_upSampling)
+              
+              prediction_temp_temp <- predict(model_fit_temp, newdata = data_train_y_x_temp_binary)
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <-  e1071::svm(modelformula, data = data_train_upSampling)
+          
+          class_prediction_train <- predict(model_fit, newdata=data_train_x)
+          class_prediction_test <- predict(model_fit, newdata=data_test_x)
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["over_sampling_SVM_OVO"]] <- cbind(class_prediction_train_OVO_list[["over_sampling_SVM_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["over_sampling_SVM_OVO"]] <- cbind(class_prediction_test_OVO_list[["over_sampling_SVM_OVO"]], class_prediction_test)
+        }
+        
+        
+        
+        ### method 21_1: under sampling (RF)
+        if(is.element("down_sampling_RF_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          data_train_downSampling <- caret::downSample(x = data_train_y_x_temp_binary[, names_x_data_train],
+                                                       y = data_train_y_x_temp_binary$Y_binary_factor)
+          colnames(data_train_downSampling) <- c(names_x_data_train, "Y_binary_factor")
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train_downSampling)
+              
+              prediction_temp_temp <- predict(model_fit_temp, data = data_train_y_x_temp_binary)$predictions
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <- ranger::ranger(formula = modelformula, data = data_train_downSampling)
+          
+          class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+          class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["down_sampling_RF_OVO"]] <- cbind(class_prediction_train_OVO_list[["down_sampling_RF_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["down_sampling_RF_OVO"]] <- cbind(class_prediction_test_OVO_list[["down_sampling_RF_OVO"]], class_prediction_test)
+        }
+        
+        
+        
+        ### method 21_2: under sampling (SVM)
+        if(is.element("down_sampling_SVM_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          
+          data_train_downSampling <- caret::downSample(x = data_train_y_x_temp_binary[, names_x_data_train],
+                                                       y = data_train_y_x_temp_binary$Y_binary_factor)
+          colnames(data_train_downSampling) <- c(names_x_data_train, "Y_binary_factor")
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <-  e1071::svm(modelformula, data = data_train_downSampling)
+              
+              prediction_temp_temp <- predict(model_fit_temp, newdata = data_train_y_x_temp_binary)
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <-  e1071::svm(modelformula, data = data_train_downSampling)
+          
+          class_prediction_train <- predict(model_fit, newdata=data_train_x)
+          class_prediction_test <- predict(model_fit, newdata=data_test_x)
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["down_sampling_SVM_OVO"]] <- cbind(class_prediction_train_OVO_list[["down_sampling_SVM_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["down_sampling_SVM_OVO"]] <- cbind(class_prediction_test_OVO_list[["down_sampling_SVM_OVO"]], class_prediction_test)
+        }
+        
+        
+        
+        ### method 22_1: SMOTE (RF)
+        if(is.element("SMOTE_RF_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          data_train_SMOTE <- UBL::SmoteClassif(Y_binary_factor~., data_train_y_x_temp_binary[, c("Y_binary_factor", names_x_data_train)], C.perc = "balance")
+          colnames(data_train_SMOTE) <- c("Y_binary_factor", names_x_data_train)
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train_SMOTE)
+              
+              prediction_temp_temp <- predict(model_fit_temp, data = data_train_y_x_temp_binary)$predictions
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <- ranger::ranger(formula = modelformula, data = data_train_SMOTE)
+          
+          class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+          class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["SMOTE_RF_OVO"]] <- cbind(class_prediction_train_OVO_list[["SMOTE_RF_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["SMOTE_RF_OVO"]] <- cbind(class_prediction_test_OVO_list[["SMOTE_RF_OVO"]], class_prediction_test)
+        }
+        
+        
+        ### method 22_2: SMOTE (SVM)
+        if(is.element("SMOTE_SVM_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          
+          data_train_SMOTE <- UBL::SmoteClassif(Y_binary_factor~., data_train_y_x_temp_binary[, c("Y_binary_factor", names_x_data_train)], C.perc = "balance")
+          colnames(data_train_SMOTE) <- c("Y_binary_factor", names_x_data_train)
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <-  e1071::svm(modelformula, data = data_train_SMOTE)
+              
+              prediction_temp_temp <- predict(model_fit_temp, newdata = data_train_y_x_temp_binary)
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <-  e1071::svm(modelformula, data = data_train_SMOTE)
+          
+          class_prediction_train <- predict(model_fit, newdata=data_train_x)
+          class_prediction_test <- predict(model_fit, newdata=data_test_x)
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["SMOTE_SVM_OVO"]] <- cbind(class_prediction_train_OVO_list[["SMOTE_SVM_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["SMOTE_SVM_OVO"]] <- cbind(class_prediction_test_OVO_list[["SMOTE_SVM_OVO"]], class_prediction_test)
+        }
+        
+        
+        
+        ### method 23_1: cost sensitive (RF)
+        if(is.element("cost_sensitive_RF_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          # data_train <- cbind(Y_binary_factor, data_train_x)
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train_y_x_temp_binary, class.weights = 1/(table(data_train_y_x_temp_binary$Y_binary_factor)/length(data_train_y_x_temp_binary$Y_binary_factor)))
+              
+              prediction_temp_temp <- predict(model_fit_temp, data = data_train_y_x_temp_binary)$predictions
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <- ranger::ranger(formula = modelformula, data = data_train_y_x_temp_binary, class.weights = 1/(table(data_train_y_x_temp_binary$Y_binary_factor)/length(data_train_y_x_temp_binary$Y_binary_factor)))
+          
+          class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+          class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["cost_sensitive_RF_OVO"]] <- cbind(class_prediction_train_OVO_list[["cost_sensitive_RF_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["cost_sensitive_RF_OVO"]] <- cbind(class_prediction_test_OVO_list[["cost_sensitive_RF_OVO"]], class_prediction_test)
+        }
+        
+        
+        ### method 23_2: cost sensitive (SVM)
+        if(is.element("cost_sensitive_SVM_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <-  caret::train(modelformula, data = data_train_y_x_temp_binary, method = "svmRadialWeights", Cost=1/(table(data_train_y_x_temp_binary$Y_binary_factor)/length(data_train_y_x_temp_binary$Y_binary_factor)), weight=1/(table(data_train_y_x_temp_binary$Y_binary_factor)/length(data_train_y_x_temp_binary$Y_binary_factor)), 
+                                              trControl = trainControl(method = "none", verboseIter  = FALSE, allowParallel = FALSE))
+              
+              prediction_temp_temp <- predict(model_fit_temp, newdata = data_train_y_x_temp_binary)
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <-  caret::train(modelformula, data = data_train_y_x_temp_binary, method = "svmRadialWeights", Cost=1/(table(data_train_y_x_temp_binary$Y_binary_factor)/length(data_train_y_x_temp_binary$Y_binary_factor)), weight=1/(table(data_train_y_x_temp_binary$Y_binary_factor)/length(data_train_y_x_temp_binary$Y_binary_factor)), 
+                                     trControl = trainControl(method = "none", verboseIter  = FALSE, allowParallel = FALSE))
+          
+          class_prediction_train <- predict(model_fit, newdata=data_train_x)
+          class_prediction_test <- predict(model_fit, newdata=data_test_x)
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["cost_sensitive_SVM_OVO"]] <- cbind(class_prediction_train_OVO_list[["cost_sensitive_SVM_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["cost_sensitive_SVM_OVO"]] <- cbind(class_prediction_test_OVO_list[["cost_sensitive_SVM_OVO"]], class_prediction_test)
+        }
+        
+        
+        
+        ### method 24_1: threshold moving (RF)
+        if(is.element("threshold_moving_RF_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          # data_train <- cbind(Y_binary_factor, data_train_x)
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <- ranger::ranger(formula = modelformula, data = data_train_y_x_temp_binary, probability = TRUE)
+              
+              prediction_temp_temp <- predict(model_fit_temp, data = data_train_y_x_temp_binary)$predictions
+              prediction_temp_temp <- prediction_temp_temp[, "1"]
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <- ranger::ranger(formula = modelformula, data = data_train_y_x_temp_binary, probability = TRUE)
+          
+          class_prediction_train_binary <- predict(model_fit, data=data_train_y_x_temp_binary)$predictions
+          class_prediction_train_binary <- class_prediction_train_binary[, "1"]
+          
+          threshold_c <- seq(0, 1, 0.01)
+          F1_threshold <- c()
+          for (threshold_i in threshold_c) {
+            class_prediction_train_discrete <- ifelse(class_prediction_train_binary>threshold_i, 1, 2)
+            label_true_temp <- ifelse(data_train_y_x_temp_binary$data_train_y==class_1, 1, 2)
+            F1_threshold <- c(F1_threshold, F1(label_true_temp, class_prediction_train_discrete))
+          }
+          threshold_optimal <- median(threshold_c[F1_threshold==max(F1_threshold)])
+          
+          class_prediction_train <- predict(model_fit, data=data_train_x)$predictions
+          class_prediction_train <- class_prediction_train[, 2]
+          class_prediction_train <- ifelse(class_prediction_train>threshold_optimal, 1, -1)
+          class_prediction_test <- predict(model_fit, data=data_test_x)$predictions
+          class_prediction_test <- class_prediction_test[, 2]
+          class_prediction_test <- ifelse(class_prediction_test>threshold_optimal, 1, -1)
+          
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["threshold_moving_RF_OVO"]] <- cbind(class_prediction_train_OVO_list[["threshold_moving_RF_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["threshold_moving_RF_OVO"]] <- cbind(class_prediction_test_OVO_list[["threshold_moving_RF_OVO"]], class_prediction_test)
+        }
+        
+        
+        ### method 24_2: threshold moving (SVM)
+        if(is.element("threshold_moving_SVM_OVO", names_methods)){
+          
+          ## R code
+          tictoc::tic()
+          
+          if(select_backward_wilcoxon) {
+            auc_backward <- c()
+            for (subset_i in seq_len(length(subsets_backward))) {
+              cat(subset_i, "\n")
+              names_x_select_temp <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[subset_i]])
+              names_x_select_temp <- c(names_x_select_temp, names_x_fixed)
+              modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select_temp, collapse = "+")))
+              model_fit_temp <-  e1071::svm(modelformula, data = data_train_y_x_temp_binary, probability = TRUE)
+              
+              prediction_temp_temp <- predict(model_fit_temp, newdata = data_train_y_x_temp_binary, probability = TRUE)
+              prediction_temp_temp <- attr(prediction_temp_temp, "probabilities")
+              prediction_temp_temp <- prediction_temp_temp[, "1"]
+              auc_backward[subset_i] <- pROC::multiclass.roc(data_train_y_x_temp_binary$Y_binary_factor, as.numeric(as.character(prediction_temp_temp)))$auc
+            }
+            names_x_select <- as.character(results_Wilcoxon_OVO$names_x[1:subsets_backward[which.max(auc_backward)]])
+            names_x_select <- c(names_x_fixed, names_x_select)
+            
+          } else {
+            names_x_select <- names_x
+          }
+          
+          modelformula <- as.formula(paste("Y_binary_factor", "~", paste(names_x_select, collapse = "+")))
+          model_fit <-  e1071::svm(modelformula, data = data_train_y_x_temp_binary, probability = TRUE)
+          
+          class_prediction_train_binary <- predict(model_fit, newdata=data_train_y_x_temp_binary, probability = TRUE)
+          class_prediction_train_binary <- attr(class_prediction_train_binary, "probabilities")
+          class_prediction_train_binary <- class_prediction_train_binary[, "1"]
+          
+          threshold_c <- seq(0, 1, 0.01)
+          F1_threshold <- c()
+          for (threshold_i in threshold_c) {
+            class_prediction_train_discrete <- ifelse(class_prediction_train_binary>threshold_i, 1, 2)
+            label_true_temp <- ifelse(data_train_y_x_temp_binary$data_train_y==class_1, 1, 2)
+            F1_threshold <- c(F1_threshold, F1(label_true_temp, class_prediction_train_discrete))
+          }
+          threshold_optimal <- median(threshold_c[F1_threshold==max(F1_threshold)])
+          
+          class_prediction_train <- predict(model_fit, newdata=data_train_x, probability = TRUE)
+          class_prediction_train <- attr(class_prediction_train, "probabilities")
+          class_prediction_train <- class_prediction_train[, "1"]
+          class_prediction_train <- ifelse(class_prediction_train>threshold_optimal, 1, -1)
+          class_prediction_test <- predict(model_fit, newdata=data_test_x, probability = TRUE)
+          class_prediction_test <- attr(class_prediction_test, "probabilities")
+          class_prediction_test <- class_prediction_test[, "1"]
+          class_prediction_test <- ifelse(class_prediction_test>threshold_optimal, 1, -1)
+          tictoc::toc()
+          
+          class_prediction_train <- ifelse(class_prediction_train==1, class_1, class_2)
+          class_prediction_test <- ifelse(class_prediction_test==1, class_1, class_2)
+          
+          class_prediction_train_OVO_list[["threshold_moving_SVM_OVO"]] <- cbind(class_prediction_train_OVO_list[["threshold_moving_SVM_OVO"]], class_prediction_train)
+          class_prediction_test_OVO_list[["threshold_moving_SVM_OVO"]] <- cbind(class_prediction_test_OVO_list[["threshold_moving_SVM_OVO"]], class_prediction_test)
+        }
+        
+        
+        
+      }
+      
+      
+      
+      ### method 19_1_OVO: original (RF) + OVO
+      if(is.element("original_RF_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["original_RF_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 19_2: original (SVM)
+      if(is.element("original_SVM_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["original_SVM_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 20_1: over sampling (RF)
+      if(is.element("over_sampling_RF_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["over_sampling_RF_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      ### method 20_2: over sampling (SVM)
+      if(is.element("over_sampling_SVM_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["over_sampling_SVM_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 21_1: under sampling (RF)
+      if(is.element("down_sampling_RF_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["down_sampling_RF_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 21_2: under sampling (SVM)
+      if(is.element("down_sampling_SVM_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["down_sampling_SVM_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 22_1: SMOTE (RF)
+      if(is.element("SMOTE_RF_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["SMOTE_RF_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      ### method 22_2: SMOTE (SVM)
+      if(is.element("SMOTE_SVM_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["SMOTE_SVM_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      ### method 23_1: cost sensitive (RF)
+      if(is.element("cost_sensitive_RF_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["cost_sensitive_RF_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      ### method 23_2: cost sensitive (SVM)
+      if(is.element("cost_sensitive_SVM_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["cost_sensitive_SVM_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      ### method 24_1: threshold_moving (RF)
+      if(is.element("threshold_moving_RF_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["threshold_moving_RF_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      ### method 24_2: threshold_moving (SVM)
+      if(is.element("threshold_moving_SVM_OVO", names_methods)){
+        class_prediction_test <- apply(class_prediction_test_OVO_list[["threshold_moving_SVM_OVO"]], 1, function(x) names(which.max(table(x))))
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 5: AdaBoostNC
+      if(is.element("AdaBoostNC", names_methods)){
+        AdaBoostNC(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                   train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                   test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                   test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                   output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_AdaBoostNC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                   output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_AdaBoostNC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                   matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_AdaBoostNC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_AdaBoostNC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 6: AdaC2M1
+      if(is.element("AdaC2M1", names_methods)){
+        AdaC2M1(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_AdaC2M1", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_AdaC2M1", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_AdaC2M1", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_AdaC2M1", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 7: PIBoost
+      if(is.element("PIBoost", names_methods)){
+        PIBoost(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_PIBoost", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_PIBoost", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_PIBoost.", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_PIBoost", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 8: MCHDDT
+      if(is.element("MCHDDT", names_methods)){
+        MCHDDT(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+               train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+               test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+               test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+               output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_MCHDDT", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+               output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_MCHDDT", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+               matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_MCHDDT", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_MCHDDT", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 9: HDDTECOC
+      if(is.element("HDDTECOC", names_methods)){
+        HDDTECOC(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                 train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                 test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                 test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                 output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_HDDTECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                 output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_HDDTECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                 matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_HDDTECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_HDDTECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 10: HDDTOVA
+      if(is.element("HDDTOVA", names_methods)){
+        HDDTOVA(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_HDDTOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_HDDTOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_HDDTOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_HDDTOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 11: imECOCdense
+      if(is.element("imECOCdense", names_methods)){
+        imECOCdense(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                    train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                    test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                    test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                    output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_imECOCdense", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                    output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_imECOCdense", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                    matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_imECOCdense", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_imECOCdense", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 12: imECOCOVA
+      if(is.element("imECOCOVA", names_methods)){
+        imECOCOVA(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                  train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                  test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                  test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                  output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_AimECOCOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                  output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_imECOCOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                  matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_imECOCOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_imECOCOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 13: imECOCsparse
+      if(is.element("imECOCsparse", names_methods)){
+        imECOCsparse(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                     train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                     test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                     test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                     output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_imECOCsparse", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                     output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_imECOCsparse", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                     matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_imECOCsparse", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_imECOCsparse", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 14: fuzzyImbECOC
+      if(is.element("fuzzyImbECOC", names_methods)){
+        fuzzyImbECOC(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                     train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                     test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                     test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                     output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_fuzzyImbECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                     output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_fuzzyImbECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                     matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_fuzzyImbECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_fuzzyImbECOC", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ### method 15: MultiImAO
+      if(is.element("MultiImAO", names_methods)){
+        MultiImAO(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                  train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                  test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                  test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                  output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_MultiImAO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                  output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_MultiImAO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                  matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_MultiImAO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_MultiImAO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      ### method 16: MultiImOAHO
+      if(is.element("MultiImOAHO", names_methods)){
+        MultiImOAHO(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                    train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                    test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                    test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                    output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_MultiImOAHO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                    output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_MultiImOAHO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                    matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_MultiImOAHO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_MultiImOAHO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ## method 17: MultiImOVA
+      if(is.element("MultiImOVA", names_methods)){
+        MultiImOVA(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                   train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                   test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                   test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                   output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_MultiImOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                   output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_MultiImOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                   matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_MultiImOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_MultiImOVA", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      
+      
+      ## method 18: MultiImOVO
+      if(is.element("MultiImOVO", names_methods)){
+        MultiImOVO(train_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_x.xlsx"), fixed=TRUE), 
+                   train_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_train_y.xlsx"), fixed=TRUE), 
+                   test_x_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_x.xlsx"), fixed=TRUE), 
+                   test_y_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/data_test_y.xlsx"), fixed=TRUE), 
+                   output_train_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_train_MultiImOVO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE), 
+                   output_test_file=gsub("/", "\\", paste0(path, "/data/", pathname, "/", "class_prediction_test_MultiImOVO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), fixed=TRUE),
+                   matlab_code_file_directory=paste0(path, "/code/", pathname))
+        class_prediction_train <- read.xlsx(paste0("data/", pathname, "/class_prediction_train_MultiImOVO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_train <- class_prediction_train$X1
+        
+        class_prediction_test <- read.xlsx(paste0("data/", pathname, "/class_prediction_test_MultiImOVO", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"), colNames = FALSE)
+        class_prediction_test <- class_prediction_test$X1
+        
+        class_prediction_test_AllMethods_fold_i <- cbind(class_prediction_test_AllMethods_fold_i, class_prediction_test)
+      }
+      
+      #######!!!!!!!#######
+      }
+      
+      
+      # prediction_performance_rep_fold <- c()
+      # for (method_i in 1:ncol(class_prediction_test_AllMethods_fold_i)) {
+      #   
+      #   class_prediction_test_method_i <- class_prediction_test_AllMethods_fold_i[, method_i]
+      #   
+      #   F1_test <- F1(data_test_y, class_prediction_test_method_i)
+      #   
+      #   G_mean_test <- G_mean(data_test_y, class_prediction_test_method_i)
+      #   
+      #   AU1U_test <- AU1U(data_test_y, class_prediction_test_method_i)
+      #   
+      #   AUNU_test <- AUNU(data_test_y, class_prediction_test_method_i)
+      #   
+      #   AR_test <- AR(data_test_y, class_prediction_test_method_i)
+      #   
+      #   AAR_test <- AAR(data_test_y, class_prediction_test_method_i)
+      #   
+      #   KAPPA_test <- KAPPA(data_test_y, class_prediction_test_method_i)
+      #   
+      #   prediction_performance_rep_fold <- rbind(prediction_performance_rep_fold, c(F1_test, G_mean_test, AU1U_test, AUNU_test, AR_test, AAR_test, KAPPA_test))
+      #   
+      # }
+      # 
+      # prediction_performance_rep_fold <- as.data.frame(prediction_performance_rep_fold)
+      # prediction_performance_rep_fold <- cbind(names_methods, prediction_performance_rep_fold)
+      # prediction_performance_rep_fold <- cbind(cbind(rep(rep_i, ncol(class_prediction_test_AllMethods_fold_i)), rep(fold_i, ncol(class_prediction_test_AllMethods_fold_i))), prediction_performance_rep_fold)
+      # colnames(prediction_performance_rep_fold) <- c("rep", "fold", "names_methods", "F1_test", "G_mean_test", "AU1U_test", "AUNU_test", "AR_test", "AAR_test", "KAPPA_test")
+      # # write.xlsx(prediction_performance_rep, file = paste0(path, "/code/", pathname,"/prediction_performance", "_rep_", rep_i, ".xlsx"))
+      # write.table(prediction_performance_rep_fold, file = paste0(path, "/code/", pathname,"/prediction_performance", "_rep_", rep_i, "_fold_", fold_i, ".txt"))
+      # 
+      # prediction_performance_average <- rbind(prediction_performance_average, prediction_performance_rep_fold)
+      # 
+      # class_prediction_test_AllMethods <- rbind(class_prediction_test_AllMethods, class_prediction_test_AllMethods_fold_i)
+      # 
+      # 
+      # class_prediction_test_AllMethods_fold_i_output <- cbind(data_test_y, class_prediction_test_AllMethods_fold_i)
+      # colnames(class_prediction_test_AllMethods_fold_i_output) <- c("data_test_y", names_methods)
+      # 
+      # write.xlsx(class_prediction_test_AllMethods_fold_i_output, file = paste0("data/", pathname, "/class_prediction_test_AllMethods", "_rep_", rep_i, "_fold_", fold_i, ".xlsx"))
+      
+    }
+    
+    class_prediction_test_AllMethods <- cbind(data_test_y, class_prediction_test_AllMethods_fold_i)
+    colnames(class_prediction_test_AllMethods) <- c("data_test_y", names_methods)
+    
+    write.xlsx(class_prediction_test_AllMethods, file = paste0("data/", pathname, "/simulation_", N_matrix_i, "_class_prediction_test_AllMethods", "_rep_", rep_i, ".xlsx"))
+    # write.xlsx(data_test_y, file = paste0("data/", pathname, "/data_test_y", "_rep_", rep_i, ".xlsx"))
+    class_prediction_test_AllMethods <- as.data.frame(class_prediction_test_AllMethods[, names_methods])
+    colnames(class_prediction_test_AllMethods) <- names_methods
+    ###  assess prediction performance
+    prediction_performance_rep <- c()
+    for (method_i in 1:ncol(class_prediction_test_AllMethods)) {
+      
+      class_prediction_test_method_i <- class_prediction_test_AllMethods[, method_i]
+      
+      F1_test <- F1(data_test_y, class_prediction_test_method_i)
+      
+      G_mean_test <- G_mean(data_test_y, class_prediction_test_method_i)
+      
+      AU1U_test <- AU1U(data_test_y, class_prediction_test_method_i)
+      
+      AUNU_test <- AUNU(data_test_y, class_prediction_test_method_i)
+      
+      AR_test <- AR(data_test_y, class_prediction_test_method_i)
+      
+      AAR_test <- AAR(data_test_y, class_prediction_test_method_i)
+      
+      KAPPA_test <- KAPPA(data_test_y, class_prediction_test_method_i)
+      
+      prediction_performance_rep <- rbind(prediction_performance_rep, c(F1_test, G_mean_test, AU1U_test, AUNU_test, AR_test, AAR_test, KAPPA_test))
+      
+    }
+    
+    prediction_performance_rep <- as.data.frame(prediction_performance_rep)
+    prediction_performance_rep <- cbind(names_methods, prediction_performance_rep)
+    prediction_performance_rep <- cbind(rep(rep_i, ncol(class_prediction_test_AllMethods)), prediction_performance_rep)
+    colnames(prediction_performance_rep) <- c("rep", "names_methods", "F1_test", "G_mean_test", "AU1U_test", "AUNU_test", "AR_test", "AAR_test", "KAPPA_test")
+    # write.xlsx(prediction_performance_rep, file = paste0(path, "/code/", pathname,"/prediction_performance", "_rep_", rep_i, ".xlsx"))
+    write.table(prediction_performance_rep, file = paste0(path, "/code/", pathname,"/simulation_", N_matrix_i, "_prediction_performance", "_rep_", rep_i, ".txt"))
+    
+    prediction_performance <- rbind(prediction_performance, prediction_performance_rep)
+    
+  }
+  
+  write.table(prediction_performance, file = paste0(path,"/code/", pathname,"/simulation_", N_matrix_i, "_prediction_performance4.txt"))
+  
+}
